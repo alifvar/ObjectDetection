@@ -1,0 +1,28 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+	<ItemGroup>
+		<None Include="wwwroot\bootstrap\bootstrap-icons.min.css" />
+		<None Include="wwwroot\bootstrap\bootstrap.bundle.min.js" />
+		<None Include="wwwroot\bootstrap\bootstrap.min.css" />
+		<None Include="wwwroot\bootstrap\bootstrap.min.old.css" />
+		<None Include="wwwroot\bootstrap\bootstrap.min.old.css.map" />
+		<None Include="wwwroot\bootstrap\fonts\bootstrap-icons.woff" />
+		<None Include="wwwroot\bootstrap\fonts\bootstrap-icons.woff2" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<SupportedPlatform Include="browser" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="9.0.0" />
+		<PackageReference Include="Blazor.Bootstrap" Version="3.2.0" />
+	</ItemGroup>
+
+</Project>

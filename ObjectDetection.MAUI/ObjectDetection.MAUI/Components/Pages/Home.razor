@@ -1,0 +1,19 @@
+﻿@using ObjectDetection.MAUI.Services
+@page "/"
+@inject MainService ViewModel
+
+<h3>شناسایی کالا با دوربین</h3>
+
+<button @onclick="TakeAndRecognize">📷 گرفتن عکس و شناسایی</button>
+
+@if (!string.IsNullOrEmpty(ViewModel.ProductName))
+{
+    <p>نام کالا: <strong>@ViewModel.ProductName</strong></p>
+}
+
+@code {
+    private async Task TakeAndRecognize()
+    {
+        await ViewModel.TakePhotoAndRecognizeAsync();
+    }
+}
