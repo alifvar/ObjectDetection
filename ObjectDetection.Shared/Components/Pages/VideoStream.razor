@@ -1,0 +1,45 @@
+﻿@page "/videostream"
+@using Microsoft.AspNetCore.SignalR.Client;
+@inject IJSRuntime JS
+
+    <HeadContent>
+        <script src="js/camera.js"></script>
+    </HeadContent>
+
+    <h3>Video Stream</h3>
+
+    <video id="localVideo" autoplay muted width="320"></video>
+    <img id="processedImage" width="320" />
+
+    @code {
+        private HubConnection? _connection;
+
+        protected override async Task OnAfterRenderAsync(bool firstRender)
+        {
+            if (firstRender)
+            {
+                _connection = new HubConnectionBuilder()
+                    .WithUrl("https://localhost:7007/videohub") // آدرس سرور
+                    .WithAutomaticReconnect()
+                    .Build();
+
+                _connection.On<string>("ReceiveFrame", async (base64Image) =>
+                {
+                    await JS.InvokeVoidAsync("updateImage", base64Image);
+                });
+
+                await _connection.StartAsync();
+                await JS.InvokeVoidAsync("startCapture", DotNetObjectReference.Create(this));
+            }
+        }
+
+        [JSInvokable]
+        public async Task SendFrameToServer(string base64)
+        {
+            if (_connection != null)
+                if (_connection?.State == HubConnectionState.Connected)
+                {
+                    await _connection.InvokeAsync("SendFrame", base64);
+                }
+        }
+    }

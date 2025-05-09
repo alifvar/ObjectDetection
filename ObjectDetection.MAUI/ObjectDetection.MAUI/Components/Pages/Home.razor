@@ -1,4 +1,4 @@
-﻿@using ObjectDetection.MAUI.Services
+﻿@*@using ObjectDetection.MAUI.Services
 @page "/"
 @inject MainService ViewModel
 
@@ -16,4 +16,8 @@
     {
         await ViewModel.TakePhotoAndRecognizeAsync();
     }
-}
+}*@
+
+@page "/"
+
+<ObjectDetection.Shared.Components.Pages.VideoStream />
