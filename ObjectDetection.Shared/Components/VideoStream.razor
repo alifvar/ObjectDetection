@@ -1,0 +1,76 @@
+﻿<h3>VideoStream</h3>
+
+@using Microsoft.AspNetCore.SignalR.Client;
+
+<HeadContent>
+    <script src="_content/ObjectDetection.Shared/js/camera.js"></script>
+</HeadContent>
+
+@if (IsHybrid)
+{
+    <p>Hybrid (MAUI) mode active. Awaiting frames...</p>
+    <img id="processedImage" src="@ProcessedImageBase64" style="max-width: 100%; border:1px solid gray;" />
+}
+else
+{
+    <video id="localVideo" autoplay playsinline muted style="max-width: 100%; border:1px solid gray;"></video>
+    <img id="processedImage" src="@ProcessedImageBase64" style="max-width: 100%; border:1px solid gray;" />
+}
+
+@code {
+    private HubConnection? _connection;
+    private string? ProcessedImageBase64;
+    private bool IsHybrid;
+
+    [Inject] public IJSRuntime JS { get; set; } = default!;
+    [Inject] public NavigationManager Navigation { get; set; } = default!;
+    private IJSObjectReference? _cameraModule;
+
+    protected override async Task OnInitializedAsync()
+    {
+        IsHybrid = OperatingSystem.IsAndroid() || OperatingSystem.IsIOS() || OperatingSystem.IsMacCatalyst();
+
+        _connection = new HubConnectionBuilder()
+            .WithUrl(Navigation.ToAbsoluteUri("http://127.0.0.1:7014/videohub"))
+            .WithAutomaticReconnect()
+            .Build();
+
+        _connection.On<string>("ReceiveFrame", async (base64Image) =>
+        {
+            ProcessedImageBase64 = base64Image;
+            await JS.InvokeVoidAsync("updateImage", base64Image);
+            //StateHasChanged();
+        });
+
+        await _connection.StartAsync();
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender && !IsHybrid)
+        {
+            _cameraModule = await JS.InvokeAsync<IJSObjectReference>(
+                "import", "./_content/ObjectDetection.Shared/js/camera.js");
+
+            await _cameraModule.InvokeVoidAsync("startCapture", DotNetObjectReference.Create(this));
+        }
+    }
+
+    [JSInvokable]
+    public async Task SendFrameToServer(string base64)
+    {
+        if (_connection?.State == HubConnectionState.Connected)
+        {
+            await _connection.InvokeAsync("SendFrame", base64);
+        }
+    }
+
+    // Hybrid frame sender (from MAUI)
+    public async Task SendHybridFrame(string base64)
+    {
+        if (_connection?.State == HubConnectionState.Connected)
+        {
+            await _connection.InvokeAsync("SendFrame", base64);
+        }
+    }
+}

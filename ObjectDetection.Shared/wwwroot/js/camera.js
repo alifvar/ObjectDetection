@@ -1,4 +1,4 @@
-﻿window.startCapture = async function (dotNetRef) {
+﻿export async function startCapture(dotNetRef) {
     const video = document.getElementById("localVideo");
     const stream = await navigator.mediaDevices.getUserMedia({ video: true });
     video.srcObject = stream;
@@ -14,9 +14,9 @@
         const base64 = dataUrl.split(',')[1];
 
         dotNetRef.invokeMethodAsync("SendFrameToServer", base64);
-    }, 1000); // هر ۱ ثانیه
-};
+    }, 1000);
+}
 
 window.updateImage = function (base64) {
-    document.getElementById("processedImage").src =  base64;
+    document.getElementById("processedImage").src = base64;
 };

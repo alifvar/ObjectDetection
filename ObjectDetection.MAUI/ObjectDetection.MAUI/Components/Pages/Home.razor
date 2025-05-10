@@ -1,23 +1,38 @@
 ﻿@*@using ObjectDetection.MAUI.Services
+    @page "/"
+    @inject MainService ViewModel
+
+    <h3>شناسایی کالا با دوربین</h3>
+
+    <button @onclick="TakeAndRecognize">📷 گرفتن عکس و شناسایی</button>
+
+    @if (!string.IsNullOrEmpty(ViewModel.ProductName))
+    {
+        <p>نام کالا: <strong>@ViewModel.ProductName</strong></p>
+    }
+
+    @code {
+        private async Task TakeAndRecognize()
+        {
+            await ViewModel.TakePhotoAndRecognizeAsync();
+        }
+    }*@
+
 @page "/"
-@inject MainService ViewModel
 
-<h3>شناسایی کالا با دوربین</h3>
+<button @onclick="ShowVideo_Clicked"></button>
 
-<button @onclick="TakeAndRecognize">📷 گرفتن عکس و شناسایی</button>
-
-@if (!string.IsNullOrEmpty(ViewModel.ProductName))
+@if (ShowVideo)
 {
-    <p>نام کالا: <strong>@ViewModel.ProductName</strong></p>
+    <ObjectDetection.Shared.Components.VideoStream />
 }
 
-@code {
-    private async Task TakeAndRecognize()
+@code{
+
+    private bool ShowVideo = false;
+
+    private void ShowVideo_Clicked()
     {
-        await ViewModel.TakePhotoAndRecognizeAsync();
+        ShowVideo = true;
     }
-}*@
-
-@page "/"
-
-<ObjectDetection.Shared.Components.Pages.VideoStream />
+}

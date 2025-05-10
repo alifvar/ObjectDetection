@@ -26,5 +26,16 @@
 		<PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="9.0.0" />
 		<PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="9.0.4" />
 	</ItemGroup>
+	
+	<ItemGroup>
+	  <Compile Remove="wwwroot\bootstrap\**" />
+	  <Content Remove="wwwroot\bootstrap\**" />
+	  <EmbeddedResource Remove="wwwroot\bootstrap\**" />
+	  <None Remove="wwwroot\bootstrap\**" />
+	</ItemGroup>
+	
+	<ItemGroup>
+	  <Folder Include="Components\shared\" />
+	</ItemGroup>
 
 </Project>

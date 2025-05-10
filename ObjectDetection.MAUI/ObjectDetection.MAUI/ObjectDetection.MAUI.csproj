@@ -73,6 +73,7 @@
 
     <ItemGroup>
       <Folder Include="Components\Layout\" />
+      <Folder Include="wwwroot\js\" />
     </ItemGroup>
 
 </Project>

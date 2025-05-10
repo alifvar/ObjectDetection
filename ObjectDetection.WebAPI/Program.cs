@@ -19,7 +19,7 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowBlazorClient", policy =>
     {
-        policy.WithOrigins("https://localhost:7035") // آدرس Blazor WebAssembly
+        policy.SetIsOriginAllowed(_ => true) // آدرس Blazor WebAssembly
               .AllowAnyHeader()
               .AllowAnyMethod()
               .AllowCredentials();
@@ -34,7 +34,7 @@ if (app.Environment.IsDevelopment())
     app.MapOpenApi();
 }
 
-app.UseHttpsRedirection();
+//app.UseHttpsRedirection();
 
 app.UseAuthorization();
 
