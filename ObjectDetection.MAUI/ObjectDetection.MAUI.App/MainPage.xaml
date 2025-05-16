@@ -1,0 +1,68 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+             x:Class="ObjectDetection.MAUI.App.MainPage">
+
+    <ScrollView>
+        <VerticalStackLayout>
+            <FlexLayout x:Name="MainFlexLayout"
+            Direction="Row"
+            Wrap="Wrap"
+            JustifyContent="Start"
+            AlignItems="Start"
+            Padding="10,0"         >
+
+                <toolkit:CameraView x:Name="MyCamera" 
+                       MediaCaptured="MyCamera_MediaCaptured" 
+                       HeightRequest="300" 
+                       WidthRequest="400"/>
+
+                <Image x:Name="MyImage"
+           Source="dotnet_bot.png"
+           HeightRequest="400"
+                       WidthRequest="400"
+           Aspect="AspectFit" />
+            </FlexLayout>
+            <ScrollView>
+                <FlexLayout
+                    BindableLayout.ItemsSource="{Binding Detections}"
+                    Direction="Row"
+                    Wrap="Wrap"
+                    JustifyContent="Start"
+                    AlignItems="Start"
+                    Padding="10">
+
+                    <BindableLayout.ItemTemplate>
+                        <DataTemplate>
+                            <Border
+                                Stroke="Gray"
+                                StrokeShape="RoundRectangle 20,0,0,20"
+                                Margin="5"
+                                Padding="10"
+                                WidthRequest="250" 
+                                HeightRequest="300">
+
+                                <Border.GestureRecognizers>
+                                    <TapGestureRecognizer Tapped="OnItemTapped" />
+                                </Border.GestureRecognizers>
+
+                                <StackLayout>
+                                    <Label Text="{Binding Name}" FontAttributes="Bold" FontSize="16" />
+                                    <Image Source="{Binding Image}" HeightRequest="200" Aspect="AspectFit"/>
+                                </StackLayout>
+                            </Border>
+                        </DataTemplate>
+                    </BindableLayout.ItemTemplate>
+                </FlexLayout>
+            </ScrollView>
+            
+            <Button
+                Margin="10"
+                Text="SMILE" 
+                Clicked="Button_Clicked"
+                HorizontalOptions="Fill" />
+        </VerticalStackLayout>
+    </ScrollView>
+
+</ContentPage>

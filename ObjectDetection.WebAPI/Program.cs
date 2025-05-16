@@ -7,11 +7,11 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
-builder.Services.AddOpenApi();
+//builder.Services.AddOpenApi();
 
 builder.Services.AddSignalR(options =>
     {
-        options.MaximumReceiveMessageSize = 1024 * 512; // ✅ افزایش به 512 کیلوبایت (پیش‌فرض: 32 کیلوبایت)
+        options.MaximumReceiveMessageSize = 1024 * 1024; // ✅ افزایش به 512 کیلوبایت (پیش‌فرض: 32 کیلوبایت)
     }
  );
 
@@ -19,10 +19,11 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowBlazorClient", policy =>
     {
-        policy.SetIsOriginAllowed(_ => true) // آدرس Blazor WebAssembly
+        policy.AllowAnyOrigin()
+        //.SetIsOriginAllowed(_ => true) // آدرس Blazor WebAssembly
               .AllowAnyHeader()
-              .AllowAnyMethod()
-              .AllowCredentials();
+              .AllowAnyMethod();
+              //.AllowCredentials();
     });
 });
 
@@ -31,7 +32,7 @@ var app = builder.Build();
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
-    app.MapOpenApi();
+    //app.MapOpenApi();
 }
 
 //app.UseHttpsRedirection();

@@ -1,6 +1,7 @@
 ﻿<h3>VideoStream</h3>
 
 @using Microsoft.AspNetCore.SignalR.Client;
+@using Microsoft.Maui.Media;
 
 <HeadContent>
     <script src="_content/ObjectDetection.Shared/js/camera.js"></script>
@@ -17,6 +18,7 @@ else
     <img id="processedImage" src="@ProcessedImageBase64" style="max-width: 100%; border:1px solid gray;" />
 }
 
+
 @code {
     private HubConnection? _connection;
     private string? ProcessedImageBase64;
@@ -31,7 +33,19 @@ else
         IsHybrid = OperatingSystem.IsAndroid() || OperatingSystem.IsIOS() || OperatingSystem.IsMacCatalyst();
 
         _connection = new HubConnectionBuilder()
-            .WithUrl(Navigation.ToAbsoluteUri("http://127.0.0.1:7014/videohub"))
+            .WithUrl(Navigation.ToAbsoluteUri("https://192.168.1.50:7007/videohub"), options =>
+            {
+                options.HttpMessageHandlerFactory = (message) =>
+                {
+                    if (message is HttpClientHandler clientHandler)
+                    {
+                        // برای محیط توسعه - غیرفعال کردن بررسی گواهی
+                        clientHandler.ServerCertificateCustomValidationCallback +=
+                            (sender, certificate, chain, sslPolicyErrors) => true;
+                    }
+                    return message;
+                };
+            })
             .WithAutomaticReconnect()
             .Build();
 
@@ -53,6 +67,11 @@ else
                 "import", "./_content/ObjectDetection.Shared/js/camera.js");
 
             await _cameraModule.InvokeVoidAsync("startCapture", DotNetObjectReference.Create(this));
+        }
+        else if (IsHybrid)
+        {
+            var photo = await MediaPicker.CapturePhotoAsync();
+
         }
     }
 

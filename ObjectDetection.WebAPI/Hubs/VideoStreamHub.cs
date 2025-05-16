@@ -4,21 +4,40 @@ using YoloDotNet.Enums;
 using YoloDotNet.Models;
 using YoloDotNet;
 using YoloDotNet.Extensions;
+using System;
 
 namespace ObjectDetection.WebAPI.Hubs
 {
     public class VideoStreamHub : Hub
     {
+        public override Task OnConnectedAsync()
+        {
+            Console.WriteLine($"Client connected: {Context.ConnectionId}");
+
+            return base.OnConnectedAsync();
+        }
+        public override Task OnDisconnectedAsync(Exception? exception)
+        {
+            Console.WriteLine($"Client disconnected: {exception?.Message ??"NIST"}");
+            var path = Path.Combine(Directory.GetCurrentDirectory(), "Logs");
+            if (!File.Exists(path)) 
+                Directory.CreateDirectory(path);
+            path = Path.Combine(path, "log.txt");
+            if (!File.Exists(path))
+                File.Create(path);
+            File.AppendAllText(path, exception?.Message + Environment.NewLine);
+            return base.OnDisconnectedAsync(exception);
+        }
         public async Task SendFrame(string base64Image)
         {
             // پردازش فریم (مثلاً تبدیل به خاکستری یا اعمال فیلتر)
-            string processedFrame = ProcessFrame(base64Image);
+            var processedFrame = ProcessFrame(base64Image);
 
             // ارسال به کلاینت
-            await Clients.Caller.SendAsync("ReceiveFrame", processedFrame);
+            await Clients.Caller.SendAsync("ReceiveFrame", processedFrame.Item1, processedFrame.Item2);
         }
 
-        private string ProcessFrame(string base64Image)
+        private (string, List<Prediction>) ProcessFrame(string base64Image)
         {
             var path = Path.Combine(Directory.GetCurrentDirectory(), "ONNXModel", "yolov12s.onnx");
             // Instantiate a new Yolo object
@@ -50,11 +69,35 @@ namespace ObjectDetection.WebAPI.Hubs
             // Draw results
             using var resultImage = image.Draw(results);
 
+            List<Prediction> predicts = [];
+
+            foreach (var prediction in results)
+            {
+                var rect = prediction.BoundingBox; // یا prediction.BoundingBox بسته به نسخه‌ی YoloDotNet
+                var cropRect = SKRectI.Round(rect); // اگر SKRect بود
+
+                using var surface = SKSurface.Create(new SKImageInfo(cropRect.Width, cropRect.Height));
+                surface.Canvas.DrawImage(image, new SKRect(cropRect.Left, cropRect.Top, cropRect.Right, cropRect.Bottom),
+                                                 new SKRect(0, 0, cropRect.Width, cropRect.Height));
+
+                using var croppedImage = surface.Snapshot();
+                using var croppedData = croppedImage.Encode(SKEncodedImageFormat.Jpeg, 75);
+
+                byte[] croppedbytes = croppedData.ToArray();
+                string croppedbase64 = Convert.ToBase64String(croppedbytes);
+
+                predicts.Add( new Prediction { Name = prediction.Label.Name, Image = croppedbase64 });
+            }
             using var data = resultImage.Encode(SKEncodedImageFormat.Jpeg, 75); // یا PNG، و کیفیت دلخواه
             byte[] bytes = data.ToArray();
             string base64 = Convert.ToBase64String(bytes);
-            return $"data:image/jpeg;base64,{base64}";
+            return (base64, predicts);
 
         }
+    }
+    public class Prediction
+    {
+        public string Name { get; set; }
+        public string Image { get; set; }
     }
 }
