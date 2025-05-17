@@ -39,6 +39,8 @@ namespace ObjectDetection.WebAPI.Hubs
 
         private (string, List<Prediction>) ProcessFrame(string base64Image)
         {
+            if (string.IsNullOrWhiteSpace(base64Image))
+                return (string.Empty, []);
             var path = Path.Combine(Directory.GetCurrentDirectory(), "ONNXModel", "yolov12s.onnx");
             // Instantiate a new Yolo object
             using var yolo = new Yolo(new YoloOptions

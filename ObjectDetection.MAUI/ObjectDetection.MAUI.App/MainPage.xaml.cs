@@ -29,8 +29,8 @@ namespace ObjectDetection.MAUI.App
         private async Task StartSendingFrames()
         {
             _hubConnection = new HubConnectionBuilder()
-    //.WithUrl($"https://192.168.1.50:7007/videohub", options =>
-    .WithUrl($"http://31.14.115.250:4545/videohub", options =>
+    .WithUrl($"https://192.168.1.50:7007/videohub", options =>
+    //.WithUrl($"http://31.14.115.250:4545/videohub", options =>
     {
         options.HttpMessageHandlerFactory = (message) =>
         {

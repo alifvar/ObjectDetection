@@ -18,5 +18,5 @@
 }
 
 window.updateImage = function (base64) {
-    document.getElementById("processedImage").src = base64;
+    document.getElementById("processedImage").src = 'data:image/jpeg;base64,' + base64;
 };
